@@ -1,7 +1,30 @@
 
 
+class Button{
+    constructor(buttonElement){
+        buttonElement.ontouchstart = () => this.pressed = true;
+        buttonElement.ontouchend = () => this.pressed = false;
+    }
+}
+
+
 class Game{
     constructor(){
+        //キー入力を取得するイベントを作成
+        document.onkeydown = (e) => {
+            this.key[e.key] = true;
+        }
+
+        document.onkeyup = (e) => {
+            this.key[e.key] = false;
+        }
+
+        //ボタン要素を取得、入力を取得するイベントを作成
+        this.ctrl_left = new Button(document.querySelector('#ctrl_left'));
+        this.ctrl_right = new Button(document.querySelector('#ctrl_right'));
+        this.ctrl_up = new Button(document.querySelector('#ctrl_up'));
+        this.ctrl_down = new Button(document.querySelector('#ctrl_down'));
+
         //キャンバス要素を取得
         this.screen = document.querySelector('#screen');
         this.screen_ctx= this.screen.getContext('2d');
@@ -9,10 +32,14 @@ class Game{
         this.vscreen_ctx = this.vscreen.getContext('2d');
 
         //スクリーンの設定
-        this.screen.width = Config.stage_x * Config.stage_minoSize;
-        this.screen.height = Config.stage_y * Config.stage_minoSize;
-        this.vscreen.width = Config.stage_x * Config.stage_minoSize;
-        this.vscreen.height = Config.stage_y * Config.stage_minoSize;
+        let screen_height = window.innerHeight;
+        let screen_width = screen_height / Config.stage_y * Config.stage_x;
+        Config.stage_minoSize = screen_height / Config.stage_y;
+
+        this.screen.width = screen_width;
+        this.screen.height = screen_height;
+        this.vscreen.width = screen_width;
+        this.vscreen.height = screen_height;
 
         this.minos = [
             [[0, 0], [-1, 0], [-1, 1], [0, 1]], //O mino
@@ -80,24 +107,15 @@ class Game{
 
 
     update_input(){
-        document.onkeydown = (e) => {
-            this.key[e.key] = true;
-        }
-
-        document.onkeyup = (e) => {
-            this.key[e.key] = false;
-        }
-
-        this.key_left = this.key['ArrowLeft'];
-        this.key_right = this.key['ArrowRight'];
-        this.key_up = this.key['ArrowUp'];
-        this.key_down = this.key['ArrowDown'];
+        this.key_left = this.key['ArrowLeft'] || this.ctrl_left.pressed;
+        this.key_right = this.key['ArrowRight'] || this.ctrl_right.pressed;
+        this.key_up = this.key['ArrowUp'] || this.ctrl_up.pressed;
+        this.key_down = this.key['ArrowDown']|| this.ctrl_down.pressed;
     }
 
 
     resetMinoQueue(){
         this.minoQueue = [...Array(this.minos.length).keys()].sort((a, b) => this.randint(-1, 1));
-        console.log(this.minoQueue)
     }
 
 
@@ -277,6 +295,7 @@ class Game{
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    alert('スマホでプレイする際は画面を横向きにしてサイトをリロードしてください');
     const game = new Game();
     setInterval(game.tick.bind(game), Config.game_frameDelay);
 })
