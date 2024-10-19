@@ -96,6 +96,9 @@ class Game{
         //操作ミノを描画
         this.drawMino();
 
+        //ミノアシストを描画
+        this.drawAssistMino();
+
         //設置済みミノを描画
         this.draw_tiles();
 
@@ -256,18 +259,34 @@ class Game{
     }
 
 
+    drawMino(){
+        this.controlingMino.forEach((p) => {
+            this.draw_tile(this.minoX + p[0], this.minoY + p[1], this.minoColor);
+        })
+    }
+
+    drawAssistMino(){
+        let i = 0;
+        let r = parseInt(this.minoColor.slice(1, 3), 16);
+        let g = parseInt(this.minoColor.slice(3, 5), 16);
+        let b = parseInt(this.minoColor.slice(5, 7), 16);
+        while (true){
+            if (!this.checkMinoCanMove(0, i + 1)){
+                this.controlingMino.forEach((p) => {
+                    this.draw_tile(this.minoX + p[0], this.minoY + p[1] + i, `rgba(${r}, ${g}, ${b}, 0.3)`);
+                })
+                break;
+            }
+            i ++;
+        }
+    }
+
+
     draw_tile(x, y, color){
         this.vscreen_ctx.fillStyle = color;
         let sx = x * Config.stage_minoSize;
         let sy = y * Config.stage_minoSize;
         this.vscreen_ctx.fillRect(sx, sy, Config.stage_minoSize, Config.stage_minoSize);
-    }
-
-
-    drawMino(){
-        this.controlingMino.forEach((p) => {
-            this.draw_tile(this.minoX + p[0], this.minoY + p[1], this.minoColor);
-        })
     }
 
 
