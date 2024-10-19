@@ -84,7 +84,7 @@ class Game{
         //背景を描画
         this.draw_background();
 
-        if (this.stage[this.deadzone[0]][this.deadzone[1]]){
+        if (Boolean(this.stage[this.deadzone[0]][this.deadzone[1]])){
             //ブロックがこれ以上設置できないのでリセット
             this.initializeGame();
             return;
@@ -125,17 +125,11 @@ class Game{
             this.resetMinoQueue();
         }
         this.minoID = this.minoQueue.pop();
+        this.minoColor = Config.stage_minoColors[this.minoID];
         this.minoX = Math.floor(Config.stage_x / 2);
         this.minoY = 0;
         this.controlingMino = this.minos[this.minoID];
         this.minoFallingDelay = this.frameCount + Config.stage_minoFallingDelay;
-    }
-
-
-    drawMino(){
-        this.controlingMino.forEach((p) => {
-            this.draw_tile(this.minoX + p[0], this.minoY + p[1]);
-        })
     }
 
 
@@ -160,7 +154,7 @@ class Game{
             if (absX < 0 || Config.stage_x <= absX || Config.stage_y <= absY + 1){
                 return false;
             }
-            else if (this.stage[absX][absY]){
+            else if (Boolean(this.stage[absX][absY])){
                 return false;
             }
         }
@@ -175,7 +169,7 @@ class Game{
             if (absX < 0 || Config.stage_x <= absX || Config.stage_y <= absY){
                 return false;
             }
-            else if (this.stage[absX][absY]){
+            else if (Boolean(this.stage[absX][absY])){
                 return false;
             }
         }
@@ -187,8 +181,9 @@ class Game{
         for (let i = 0; i < 4; i++){
             let absX = this.controlingMino[i][0] + this.minoX;
             let absY = this.controlingMino[i][1] + this.minoY;
-            this.stage[absX][absY] = true;
+            this.stage[absX][absY] = this.minoColor;
         }
+        console.log(this.stage)
     }
 
 
@@ -261,23 +256,31 @@ class Game{
     }
 
 
+    draw_tile(x, y, color){
+        this.vscreen_ctx.fillStyle = color;
+        let sx = x * Config.stage_minoSize;
+        let sy = y * Config.stage_minoSize;
+        this.vscreen_ctx.fillRect(sx, sy, Config.stage_minoSize, Config.stage_minoSize);
+    }
+
+
+    drawMino(){
+        this.controlingMino.forEach((p) => {
+            this.draw_tile(this.minoX + p[0], this.minoY + p[1], this.minoColor);
+        })
+    }
+
+
     draw_tiles(){
         for (let y = 0; y < Config.stage_y; y++){
             for (let x = 0; x < Config.stage_x; x++){
-                if (this.stage[x][y]){
-                    this.draw_tile(x, y);
+                if (Boolean(this.stage[x][y])){
+                    this.draw_tile(x, y, this.stage[x][y]);
                 }
             }
         }
     }
 
-
-    draw_tile(x, y){
-        this.vscreen_ctx.fillStyle = Config.stage_minoColor;
-        let sx = x * Config.stage_minoSize;
-        let sy = y * Config.stage_minoSize;
-        this.vscreen_ctx.fillRect(sx, sy, Config.stage_minoSize, Config.stage_minoSize);
-    }
 }
 
 
